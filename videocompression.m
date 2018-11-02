@@ -1,0 +1,5 @@
+g=imread('C:\Users\pawan\Desktop\frames\collections\img1.jpg')
+conversion = rgb2ycbcr(g)
+%k=conversion(:,:,1)
+%imshow(k)
+imsave()
