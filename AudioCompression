@@ -1,0 +1,21 @@
+url = 'C:\Users\pawan\Desktop\speech_dft.mp3'
+[y,fs]= audioread(url);
+info = audioinfo(url);
+location = 'C:\Users\pawan\Desktop\DC\new1.mp4';
+audiowrite(location, y, 48000);
+%sound(y,fs);
+len = length(y);
+c = dct(y);
+w = sqrt(2/len);
+f = linspace(0,fs/2,len);
+plot(f,w*c);
+cutoff = 0.01;
+mask = (abs(w*c)< cutoff);
+low = mask.*c;
+high = (1-mask).*c;
+lowbits = 8;
+low = quantize(low,8);
+y = idct(low + high);
+sound(y,fs);
+filename = 'new1.mp4';
+audiowrite(filename, y ,48000);
