@@ -1,0 +1,9 @@
+url1 = 'C:\Users\pawan\Desktop\DC\logo1.png';
+url2 = 'C:\Users\pawan\Desktop\DC\yy.jpg';
+a1=imfinfo(url1);
+a2=imfinfo(url1);
+
+r1 = (a1.Height * a1.Width * a1.BitDepth/8)/ a1.FileSize;
+r2 = (a2.Height * a2.Width * a2.BitDepth/8)/ a2.FileSize;
+ratio = r1/r2;
+disp(ratio);
