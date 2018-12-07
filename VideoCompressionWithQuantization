@@ -1,0 +1,61 @@
+url = 'C:\Users\pawan\Desktop\shuttle_out.avi';
+%implay(url);
+frames = 'C:\Users\pawan\Desktop\frames';
+mkdir(frames);
+mkdir(frames,'collections');
+vr = VideoReader(url);
+n = vr.NumberOfFrames;
+for i = 1:1:n; 
+    %img = rgb2ycbcr(read(vr,i))
+    img = read(vr,i);
+    imwrite(img , fullfile(frames,'collections',sprintf('img%d.jpg',i)));
+end;
+imgName = dir(fullfile(frames,'collections','*.jpg'));
+imgName = {imgName.name};
+%disp(imgName(1:10));
+imgString = regexp([imgName{:}],'(\d*)','match');
+imgNumbers = str2double(imgString);
+[ ~ ,sortedIndex] = sort(imgNumbers);
+sortedImgNames = imgName(sortedIndex);
+%disp(sortedImgNames(1:10));
+outputVideo = VideoWriter(fullfile(frames,'shuttle_out.avi'));
+outputVideo.FrameRate = 5;
+open(outputVideo);
+quality = 50;
+for ii = 1:length(sortedImgNames)
+    Q50 = [16 11 10 16 24 40 51 61;12 12 14 19 26 58 60 55;14 13 16 24 40 57 64 56;14 17 22 29 51 87 80 82;18 22 37 56 68 109 103 77;24 35 55 64 81 104 113 92;49 64 78 87 103 121 120 171;72 92 95  98 112 100 103 99]
+    if quality > 50
+         QX = round (Q50.*(ones(8)*((100-quality)/50)));
+         %QX = unit8(QX);
+     elseif quality <50
+         QX= round(Q50.*(ones(8)*(50/quality)));
+         %QX=unit8(QX);
+     elseif quality ==50
+         QX=Q50;
+     end
+    img = imread(fullfile(frames,'collections',sortedImgNames{ii}));
+    %writeVideo(outputVideo,img);
+    g=img;
+    %[l,m] = size(g);
+    k=rgb2gray(g);
+    I1 = double(k);
+    [m,n] = size(I1);
+    for i = 1:8:m
+        for j = 1:8:n
+            block = I1(i:i+7,j:j+7);
+            dctt = dctmtx(8);
+            dctmult = dctt * double(block)*dctt';
+            mult = round(dctmult./QX);
+            dctmult1 = dctt'* mult *dctt;
+            dctmult2 = dctt'* dctmult *dctt;
+            %img1(i:i+7,j:j+7)= mult;
+            img1(i:i+7,j:j+7)= dctmult2; %Without quantization
+            img2(i:i+7,j:j+7)= dctmult1; %with quantization
+        end
+    end
+    a=mat2gray(img1);
+    b=mat2gray(img2);
+
+    writeVideo(outputVideo,b);
+end
+close(outputVideo);
