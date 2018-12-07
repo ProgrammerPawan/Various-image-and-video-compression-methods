@@ -1,0 +1,30 @@
+url = 'C:\Program Files\MATLAB\R2014a\toolbox\matlab\demos\shuttle.avi';
+%implay(url);
+frames = 'C:\Users\pawan\Desktop\frames';
+mkdir(frames);
+mkdir(frames,'collections');
+vr = VideoReader(url);
+n = vr.NumberOfFrames;
+for i = 1:1:n; 
+    img = rgb2ycbcr(read(vr,i));
+    %img = read(vr,i);
+    imwrite(img , fullfile(frames,'collections',sprintf('img%d.jpg',i)));
+end;
+imgName = dir(fullfile(frames,'collections','*.jpg'));
+imgName = {imgName.name};
+%disp(imgName(1:10));
+imgString = regexp([imgName{:}],'(\d*)','match');
+imgNumbers = str2double(imgString);
+[ ~ ,sortedIndex] = sort(imgNumbers);
+sortedImgNames = imgName(sortedIndex);
+%disp(sortedImgNames(1:10));
+outputVideo = VideoWriter(fullfile(frames,'shuttle_out.avi'));
+outputVideo.FrameRate = vr.FrameRate;
+outputVideo.Quality = 20;
+open(outputVideo);
+for ii = 1:length(sortedImgNames)
+    img = imread(fullfile(frames,'collections',sortedImgNames{ii}));
+    %writeVideo(outputVideo,img);
+    writeVideo(outputVideo,ycbcr2rgb(img));
+end
+close(outputVideo);
